@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مبادرة رسالة الطمأنينة 🇸🇦💗</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo & Amiri) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,700;1,400&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        saudi: {
+                            green: '#006C35',
+                            lightgreen: '#008C45',
+                            gold: '#D4AF37',
+                            golddark: '#AA820A'
+                        },
+                        pinksoft: {
+                            50: '#FFF5F7',
+                            100: '#FFE6ED',
+                            200: '#FFCCD9',
+                            400: '#FF69B4',
+                            500: '#E05297'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        amiri: ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #FFF5F7 0%, #FFFFFF 50%, #F0FDF4 100%);
+            min-height: 100vh;
+        }
+
+        /* Floating background elements */
+        .floating-icon {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(8deg); }
+        }
+
+        .gold-border {
+            border: 2px solid #D4AF37;
+            box-shadow: 0 4px 25px rgba(212, 175, 55, 0.25);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+        }
+
+        .modal-active {
+            display: flex !important;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="relative text-gray-800 flex flex-col justify-between overflow-x-hidden selection:bg-saudi-green selection:text-white">
+
+    <!-- Decorative Floating Icons -->
+    <i class="fa-solid fa-heart floating-icon text-pinksoft-400 text-5xl top-10 right-10" style="animation-delay: 0s;"></i>
+    <i class="fa-solid fa-rose floating-icon text-saudi-green text-6xl top-1/4 left-10" style="animation-delay: 1.5s;"></i>
+    <i class="fa-solid fa-star floating-icon text-saudi-gold text-4xl bottom-1/3 right-12" style="animation-delay: 3s;"></i>
+    <i class="fa-solid fa-flag floating-icon text-saudi-green text-5xl bottom-20 left-16" style="animation-delay: 2s;"></i>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl items-center space-x-3 space-x-reverse transition-all">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-green-400 text-xl"></i>
+        <span id="toast-message" class="text-sm font-semibold"></span>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="w-full bg-white/85 backdrop-blur-md border-b border-pinksoft-200 sticky top-0 z-40 px-4 py-3 shadow-sm">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-saudi-green to-pinksoft-400 flex items-center justify-center text-white text-xl shadow-md">
+                    💗
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-saudi-green text-lg md:text-xl tracking-wide flex items-center gap-1">
+                        رسالة الطمأنينة <span class="text-[10px] md:text-xs bg-saudi-gold/20 text-saudi-golddark px-2.5 py-0.5 rounded-full font-bold">🇸🇦 مبادرة مدرسية</span>
+                    </h1>
+                </div>
+            </div>
+            
+            <button onclick="toggleAdminModal(true)" class="text-xs md:text-sm font-bold text-gray-600 hover:text-saudi-green bg-pinksoft-50 hover:bg-pinksoft-100 px-3.5 py-2 rounded-xl transition-all border border-pinksoft-200 flex items-center gap-2">
+                <i class="fa-solid fa-user-shield text-saudi-gold"></i>
+                <span>لوحة المسؤولة</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main View Area -->
+    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- Student Main Interactive View -->
+        <section id="student-view" class="flex flex-col items-center text-center space-y-6">
+            
+            <!-- Saudi Flag Badge Visual -->
+            <div class="relative inline-block my-2">
+                <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-saudi-green via-emerald-600 to-pinksoft-400 p-1 shadow-xl flex items-center justify-center">
+                    <div class="w-full h-full bg-white rounded-full flex flex-col items-center justify-center p-2 text-saudi-green">
+                        <i class="fa-solid fa-flag text-3xl md:text-4xl text-saudi-green mb-1"></i>
+                        <span class="text-[10px] font-extrabold text-saudi-gold tracking-widest">رؤية 2030</span>
+                    </div>
+                </div>
+                <span class="absolute -bottom-1 -right-1 bg-pinksoft-400 text-white p-2 rounded-full text-xs shadow-lg animate-bounce">
+                    💖
+                </span>
+            </div>
+
+            <!-- Page Titles -->
+            <div class="space-y-3 max-w-2xl">
+                <h2 class="text-3xl md:text-5xl font-black text-saudi-green font-amiri leading-tight">
+                    «كل يوم رسالة.. وكل رسالة تمنحك طمأنينة»
+                </h2>
+                <p class="text-pinksoft-500 text-base md:text-lg font-bold bg-pinksoft-100/80 inline-block px-5 py-2 rounded-full border border-pinksoft-200 shadow-sm">
+                    «أهلًا بكِ يا جميلة.. هنا رسالة صغيرة تحمل لكِ الطمأنينة والأمل وحب الوطن» 🌸✨
+                </p>
+            </div>
+
+            <!-- Student Name Form -->
+            <div id="input-card" class="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 shadow-xl gold-border relative overflow-hidden transition-all duration-300 my-4">
+                <div class="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-saudi-green via-saudi-gold to-pinksoft-400"></div>
+                
+                <form id="student-form" onsubmit="handleOpenMessage(event)" class="space-y-5">
+                    <div class="text-right">
+                        <label for="studentName" class="block text-sm font-bold text-gray-700 mb-2 mr-1">
+                            <i class="fa-solid fa-graduation-cap text-saudi-green ml-1"></i> اختاري اسمكِ الأنيق:
+                        </label>
+                        <input type="text" id="studentName" required placeholder="اكتبي اسمكِ الثلاثي هنا..." 
+                            class="w-full px-4 py-3.5 rounded-2xl border-2 border-pinksoft-200 focus:border-saudi-green focus:outline-none focus:ring-4 focus:ring-saudi-green/10 transition-all text-gray-800 placeholder-gray-400 font-bold text-center text-lg shadow-inner">
+                    </div>
+
+                    <button type="submit" id="btn-open-msg"
+                        class="w-full bg-gradient-to-r from-saudi-green to-saudi-lightgreen hover:from-saudi-lightgreen hover:to-saudi-green text-white font-black py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all text-lg flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-envelope-open-text text-xl text-saudi-gold"></i>
+                        <span>افتحي رسالة اليوم</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Daily Message Display Card (Hidden by Default) -->
+            <div id="message-card" class="hidden w-full max-w-xl bg-white rounded-3xl p-6 md:p-10 shadow-2xl border-2 border-saudi-gold relative overflow-hidden transition-all duration-500 my-4 card-glass">
+                <div class="relative z-10 flex flex-col items-center">
+                    
+                    <!-- Date & Axis Tag -->
+                    <div class="flex items-center justify-between w-full border-b border-gray-100 pb-4 mb-6 text-xs md:text-sm text-gray-500 font-bold">
+                        <span class="flex items-center gap-1.5 text-saudi-green bg-saudi-green/5 px-3 py-1.5 rounded-full">
+                            <i class="fa-solid fa-calendar-day text-saudi-gold"></i>
+                            <span id="card-date-str">تاريخ اليوم</span>
+                        </span>
+                        <span id="card-category-badge" class="bg-pinksoft-100 text-pinksoft-500 px-3 py-1.5 rounded-full font-bold">
+                            محور الرسالة
+                        </span>
+                    </div>
+
+                    <!-- Greeting Section -->
+                    <div class="text-saudi-green text-lg md:text-xl font-bold mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-heart text-pinksoft-400 animate-pulse"></i>
+                        <span>عزيزتي الطالبة <span id="card-student-name" class="text-saudi-gold font-extrabold underline decoration-pinksoft-400"></span>، هذه رسالتكِ لهذا اليوم:</span>
+                    </div>
+
+                    <!-- Message Text Card -->
+                    <div class="my-6 p-6 md:p-8 bg-gradient-to-br from-pinksoft-50/60 to-emerald-50/40 rounded-2xl border border-saudi-gold/30 shadow-inner w-full">
+                        <p id="card-message-text" class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed font-amiri text-center">
+                            جاري جلب رسالتك اليومية...
+                        </p>
+                    </div>
+
+                    <!-- Closing Statement -->
+                    <div class="text-saudi-green font-extrabold text-base md:text-lg my-2 flex items-center justify-center gap-2">
+                        <span>🌸 ابتسمي.. أنتِ جزء جميل من هذا الوطن 🇸🇦</span>
+                    </div>
+
+                    <!-- Interactive Buttons -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6 pt-4 border-t border-gray-100">
+                        <button onclick="shareMessage()" class="bg-pinksoft-100 hover:bg-pinksoft-200 text-pinksoft-500 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            <span>مشاركة الرسالة</span>
+                        </button>
+                        <button onclick="getRandomMessage(true)" class="bg-saudi-green/10 hover:bg-saudi-green/20 text-saudi-green font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm">
+                            <i class="fa-solid fa-rotate text-saudi-gold"></i>
+                            <span>رسالة أخرى</span>
+                        </button>
+                    </div>
+                    
+                    <button onclick="resetView()" class="mt-4 text-xs font-bold text-gray-400 hover:text-gray-600 underline">
+                        العودة للصفحة الرئيسية
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-saudi-gold relative p-6 md:p-8">
+            
+            <button onclick="toggleAdminModal(false)" class="absolute top-5 left-5 text-gray-400 hover:text-gray-600 bg-gray-100 w-9 h-9 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Admin Authentication Screen -->
+            <div id="admin-auth-screen" class="space-y-6 text-center py-8">
+                <div class="w-16 h-16 bg-saudi-green/10 text-saudi-green rounded-full flex items-center justify-center mx-auto text-3xl">
+                    <i class="fa-solid fa-lock text-saudi-gold"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-saudi-green">لوحة تحكم مسؤولة المبادرة</h3>
+                    <p class="text-gray-500 text-sm mt-1">أدخلي كلمة المرور للوصول للسجلات والإحصائيات (الافتراضية: admin123)</p>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="max-w-xs mx-auto space-y-4">
+                    <input type="password" id="adminPassword" placeholder="كلمة المرور..." required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-saudi-green focus:outline-none text-center font-bold text-lg">
+                    <button type="submit" class="w-full bg-saudi-green hover:bg-saudi-lightgreen text-white font-bold py-3 rounded-xl shadow-lg transition">
+                        دخول اللوحة
+                    </button>
+                </form>
+            </div>
+
+            <!-- Admin Dashboard Main Screen -->
+            <div id="admin-dashboard-screen" class="hidden space-y-8">
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-4">
+                    <div>
+                        <h3 class="text-2xl font-black text-saudi-green flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-saudi-gold"></i>
+                            إحصائيات المبادرة المباشرة
+                        </h3>
+                        <p class="text-xs text-gray-500">تحديث فوري وإحصائيات مباشرة للطالبات المشاركات</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>تصدير Excel (CSV)</span>
+                        </button>
+                        <button onclick="adminLogout()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-3 py-2 rounded-xl text-xs">
+                            خروج
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-right">
+                        <div class="text-xs font-bold text-emerald-700 mb-1">إجمالي الطالبات (الفريدات)</div>
+                        <div id="stat-unique-students" class="text-3xl font-black text-saudi-green">0</div>
+                    </div>
+                    <div class="bg-pinksoft-50 border border-pinksoft-200 rounded-2xl p-4 text-right">
+                        <div class="text-xs font-bold text-pinksoft-500 mb-1">زيارات اليوم</div>
+                        <div id="stat-today-visitors" class="text-3xl font-black text-pinksoft-500">0</div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-right">
+                        <div class="text-xs font-bold text-amber-700 mb-1">إجمالي الزيارات الكلية</div>
+                        <div id="stat-total-visits" class="text-3xl font-black text-saudi-golddark">0</div>
+                    </div>
+                </div>
+
+                <!-- Log Records Table -->
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <h4 class="font-bold text-lg text-gray-800 self-start">سجل مشاركات الطالبات</h4>
+                        <div class="w-full sm:w-64">
+                            <input type="text" id="tableSearch" oninput="filterLogTable()" placeholder="بحث باسم الطالبة..." 
+                                class="w-full px-3 py-2 text-sm rounded-xl border border-gray-300 focus:outline-none focus:border-saudi-green">
+                        </div>
+                    </div>
+
+                    <!-- Logs Table Container -->
+                    <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm max-h-80 overflow-y-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-saudi-green text-white sticky top-0 font-bold">
+                                <tr>
+                                    <th class="p-3">اسم الطالبة</th>
+                                    <th class="p-3">التاريخ واليوم</th>
+                                    <th class="p-3">الوقت</th>
+                                    <th class="p-3">عدد الزيارات</th>
+                                    <th class="p-3 text-center">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody" class="divide-y divide-gray-100 bg-white">
+                                <tr>
+                                    <td colspan="5" class="p-4 text-center text-gray-400">جاري تحميل البيانات...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Manage Messages Section -->
+                <div class="space-y-4 border-t pt-6">
+                    <h4 class="font-bold text-lg text-gray-800 flex items-center justify-between">
+                        <span>إدارة مكتبة الرسائل</span>
+                        <button onclick="toggleAddMessageForm()" class="text-xs bg-saudi-green text-white px-3 py-1.5 rounded-lg hover:bg-saudi-lightgreen">
+                            <i class="fa-solid fa-plus ml-1"></i> إضافة رسالة جديدة
+                        </button>
+                    </h4>
+
+                    <!-- New Message Input Form -->
+                    <div id="add-msg-form" class="hidden bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <select id="new-msg-category" class="px-3 py-2 rounded-xl border border-gray-300 text-sm font-bold">
+                                <option value="الطمأنينة النفسية">الطمأنينة النفسية</option>
+                                <option value="حب الوطن 🇸🇦">حب الوطن 🇸🇦</option>
+                                <option value="حماة الوطن">حماة الوطن</option>
+                                <option value="الأمن والوعي">الأمن والوعي</option>
+                                <option value="الطموح والمسؤولية">الطموح والمسؤولية</option>
+                            </select>
+                            <input type="text" id="new-msg-text" placeholder="نص الرسالة الجديدة..." class="md:col-span-2 px-3 py-2 rounded-xl border border-gray-300 text-sm">
+                        </div>
+                        <button onclick="addNewMessage()" class="w-full bg-saudi-gold text-white font-bold py-2 rounded-xl text-sm hover:bg-saudi-golddark">
+                            حفظ الرسالة الجديدة
+                        </button>
+                    </div>
+
+                    <!-- Messages List View -->
+                    <div id="messages-admin-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Permanent Footer -->
+    <footer class="w-full bg-white/90 border-t border-pinksoft-200 py-6 px-4 text-center space-y-2 mt-12 relative z-10">
+        <p class="text-saudi-green font-bold text-sm md:text-base max-w-3xl mx-auto leading-relaxed">
+            «اللهم احفظ وطننا وقيادتنا وجنودنا، وأدم علينا نعمة الأمن والأمان، واجعل أيامنا مليئة بالطمأنينة والإنجاز»
+        </p>
+        <p class="text-saudi-golddark font-black text-xs md:text-sm">
+            🇸🇦 دام عزك يا وطن، ودام أمنك وأمانك 🇸🇦
+        </p>
+    </footer>
+
+    <!-- Firebase SDK Implementation -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'tranquility-school-initiative';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDemoConfigKeyForDeploymentOnly12345",
+            authDomain: "demo-tranquility.firebaseapp.com",
+            projectId: "demo-tranquility",
+            storageBucket: "demo-tranquility.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let activeLogs = [];
+
+        // 5 Core Axes Message Library
+        const defaultMessages = [
+            // المحور الأول: رسائل الطمأنينة النفسية
+            { category: "الطمأنينة النفسية", text: "اطمئني، فكل يوم يحمل فرصة جديدة وأملًا جميلًا." },
+            { category: "الطمأنينة النفسية", text: "لا تجعلي القلق يسرق منك جمال يومك." },
+            { category: "الطمأنينة النفسية", text: "كوني قوية، فأنتِ قادرة على تجاوز الصعوبات." },
+            { category: "الطمأنينة النفسية", text: "ثقي بنفسك، فأنتِ تمتلكين الكثير من القدرات." },
+            { category: "الطمأنينة النفسية", text: "خذي نفسًا عميقًا، وامنحي قلبك لحظة من الهدوء." },
+            { category: "الطمأنينة النفسية", text: "مهما كانت التحديات، تذكري أن الأمل لا ينتهي." },
+
+            // المحور الثاني: رسائل حب الوطن 🇸🇦
+            { category: "حب الوطن 🇸🇦", text: "وطني ليس مجرد أرض، بل هو أمن وانتماء واعتزاز." },
+            { category: "حب الوطن 🇸🇦", text: "حب الوطن يظهر في أفعالنا وعطائنا وإخلاصنا." },
+            { category: "حب الوطن 🇸🇦", text: "كوني فخورة بوطنك، فأنتِ جزء من مستقبله." },
+            { category: "حب الوطن 🇸🇦", text: "وطننا يستحق منا العلم والعمل والمحافظة على مكتسباته." },
+            { category: "حب الوطن 🇸🇦", text: "بالعلم والأخلاق نبني وطنًا يزداد رفعة وازدهارًا." },
+            { category: "حب الوطن 🇸🇦", text: "دمت يا وطن شامخًا آمنًا عزيزًا." },
+
+            // المحور الثالث: رسائل الدفاع عن الوطن وحماة الوطن
+            { category: "حماة الوطن", text: "خلف أمننا رجال يسهرون لحمايتنا، فلهم منا الدعاء والتقدير." },
+            { category: "حماة الوطن", text: "اللهم احفظ جنودنا البواسل، وسدد خطاهم، وأعدهم سالمين." },
+            { category: "حماة الوطن", text: "تحية تقدير لكل من يسهم في حماية وطننا وأمنه." },
+            { category: "حماة الوطن", text: "الدفاع عن الوطن شرف ومسؤولية، وخدمته تبدأ من الإخلاص في العمل." },
+            { category: "حماة الوطن", text: "جنودنا البواسل، أنتم محل فخر واعتزاز، حفظكم الله ورعاكم." },
+            { category: "حماة الوطن", text: "الأمن نعمة عظيمة، فلنحافظ عليها بالوعي والمسؤولية." },
+            { category: "حماة الوطن", text: "كل عمل مخلص يسهم في رفعة الوطن وحمايته هو صورة من صور الوفاء له." },
+
+            // المحور الرابع: رسائل الأمن والأمان والوعي
+            { category: "الأمن والوعي", text: "حافظي على أمنك وأمن مجتمعك، فالوعي مسؤولية الجميع." },
+            { category: "الأمن والوعي", text: "لا تنشري الشائعات أو الأخبار مجهولة المصدر." },
+            { category: "الأمن والوعي", text: "استقي معلوماتك من المصادر الرسمية والموثوقة." },
+            { category: "الأمن والوعي", text: "التزمي بالتعليمات والإرشادات الرسمية عند الطوارئ." },
+            { category: "الأمن والوعي", text: "وعيك مسؤولية، وكلمتك قد تصنع فرقًا." },
+            { category: "الأمن والوعي", text: "لا تشاركي أي معلومات أو صور قد تضر بأمن الوطن." },
+            { category: "الأمن والوعي", text: "كوني واعية في العالم الرقمي، فحماية الوطن تبدأ بالوعي." },
+
+            // المحور الخامس: رسائل الطموح والمسؤولية الوطنية
+            { category: "الطموح والمسؤولية", text: "أنتِ أمل الوطن ومستقبله المشرق." },
+            { category: "الطموح والمسؤولية", text: "اجعلي علمك وسيلتك لخدمة وطنك." },
+            { category: "الطموح والمسؤولية", text: "طالبة اليوم قائدة الغد." },
+            { category: "الطموح والمسؤولية", text: "بالعلم نرتقي، وبالإخلاص نبني، وبالانتماء نعطي." },
+            { category: "الطموح والمسؤولية", text: "نجاحك الشخصي إضافة جميلة لوطنك." },
+            { category: "الطموح والمسؤولية", text: "كوني نموذجًا للمواطنة الواعية والمسؤولة." }
+        ];
+
+        let currentMessagesList = [...defaultMessages];
+
+        // Auth Init
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth Exception:", err);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                subscribeToLogs();
+                loadCustomMessages();
+            }
+        });
+
+        // Toast Helper
+        window.showToast = function(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.innerText = msg;
+            toastIcon.className = isError ? "fa-solid fa-circle-exclamation text-red-400 text-xl" : "fa-solid fa-circle-check text-green-400 text-xl";
+            
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3500);
+        };
+
+        // Formatted Date Helper
+        function getFormattedDate() {
+            const now = new Date();
+            const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            const dayName = days[now.getDay()];
+            const dateStr = now.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            const isoDate = now.toISOString().split('T')[0];
+
+            return { dayName, dateStr, timeStr, isoDate, fullDate: `${dayName} ${dateStr}` };
+        }
+
+        // Action: Submit Form & Show Message
+        window.handleOpenMessage = async function(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('studentName');
+            const name = nameInput.value.trim();
+
+            if (!name) return;
+
+            const dateInfo = getFormattedDate();
+            const docId = name.replace(/\s+/g, '_') + '_' + dateInfo.isoDate;
+
+            // Save to LocalStorage Fallback First
+            saveLocalVisit(name, dateInfo);
+
+            // Save to Firebase Firestore
+            if (currentUser) {
+                try {
+                    const logRef = doc(db, 'artifacts', appId, 'public', 'data', 'visitor_logs', docId);
+                    const existingDoc = await getDoc(logRef);
+                    let visitCount = 1;
+
+                    if (existingDoc.exists()) {
+                        visitCount = (existingDoc.data().visitCount || 1) + 1;
+                    }
+
+                    await setDoc(logRef, {
+                        studentName: name,
+                        dateStr: dateInfo.fullDate,
+                        isoDate: dateInfo.isoDate,
+                        timeStr: dateInfo.timeStr,
+                        visitCount: visitCount,
+                        timestamp: Date.now()
+                    }, { merge: true });
+
+                } catch (err) {
+                    console.error("Firestore DB write error:", err);
+                }
+            }
+
+            // Update UI
+            document.getElementById('card-student-name').innerText = name;
+            document.getElementById('card-date-str').innerText = dateInfo.fullDate;
+
+            getRandomMessage();
+
+            document.getElementById('input-card').classList.add('hidden');
+            document.getElementById('message-card').classList.remove('hidden');
+
+            // Trigger Confetti Animation
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 75,
+                    spread: 65,
+                    origin: { y: 0.6 },
+                    colors: ['#006C35', '#D4AF37', '#FF69B4']
+                });
+            }
+        };
+
+        // Local Storage Sync Backup Function
+        function saveLocalVisit(name, dateInfo) {
+            try {
+                let localData = JSON.parse(localStorage.getItem('tranquility_logs') || '[]');
+                const existingIndex = localData.findIndex(item => item.studentName === name && item.isoDate === dateInfo.isoDate);
+
+                if (existingIndex > -1) {
+                    localData[existingIndex].visitCount = (localData[existingIndex].visitCount || 1) + 1;
+                    localData[existingIndex].timeStr = dateInfo.timeStr;
+                } else {
+                    localData.push({
+                        id: name + '_' + dateInfo.isoDate,
+                        studentName: name,
+                        dateStr: dateInfo.fullDate,
+                        isoDate: dateInfo.isoDate,
+                        timeStr: dateInfo.timeStr,
+                        visitCount: 1,
+                        timestamp: Date.now()
+                    });
+                }
+                localStorage.setItem('tranquility_logs', JSON.stringify(localData));
+            } catch (e) {
+                console.warn("LocalStorage save error:", e);
+            }
+        }
+
+        // Get Random Message
+        window.getRandomMessage = function(isManualOther = false) {
+            const randomIndex = Math.floor(Math.random() * currentMessagesList.length);
+            const selected = currentMessagesList[randomIndex];
+            
+            document.getElementById('card-message-text').innerText = `« ${selected.text} »`;
+            document.getElementById('card-category-badge').innerText = selected.category;
+
+            if (isManualOther && typeof confetti === 'function') {
+                confetti({ particleCount: 30, spread: 40, origin: { y: 0.7 } });
+            }
+        };
+
+        // Reset to Landing State
+        window.resetView = function() {
+            document.getElementById('input-card').classList.remove('hidden');
+            document.getElementById('message-card').classList.add('hidden');
+        };
+
+        // Share Message Function
+        window.shareMessage = function() {
+            const text = document.getElementById('card-message-text').innerText;
+            const category = document.getElementById('card-category-badge').innerText;
+            const shareText = `${text}\n\n[ ${category} - مبادرة رسالة الطمأنينة 🇸🇦💗 ]`;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText);
+                showToast("تم نسخ الرسالة للمشاركة بنجاح!");
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast("تم نسخ الرسالة للمشاركة بنجاح!");
+            }
+        };
+
+        // Admin Modal Controls
+        window.toggleAdminModal = function(show) {
+            const modal = document.getElementById('admin-modal');
+            if (show) modal.classList.add('modal-active');
+            else modal.classList.remove('modal-active');
+        };
+
+        window.handleAdminLogin = function(event) {
+            event.preventDefault();
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === "admin123" || pwd === "123456" || pwd === "admin" || pwd === "وطني1390") {
+                document.getElementById('admin-auth-screen').classList.add('hidden');
+                document.getElementById('admin-dashboard-screen').classList.remove('hidden');
+                renderAdminMessages();
+                showToast("تم تسجيل الدخول بنجاح");
+            } else {
+                showToast("كلمة المرور غير صحيحة", true);
+            }
+        };
+
+        window.adminLogout = function() {
+            document.getElementById('admin-auth-screen').classList.remove('hidden');
+            document.getElementById('admin-dashboard-screen').classList.add('hidden');
+            document.getElementById('adminPassword').value = '';
+        };
+
+        // Subscribe Live Snapshot Firestore Logs
+        function subscribeToLogs() {
+            if (!currentUser) return;
+
+            const logsCol = collection(db, 'artifacts', appId, 'public', 'data', 'visitor_logs');
+            onSnapshot(logsCol, (snapshot) => {
+                activeLogs = [];
+                snapshot.forEach((doc) => {
+                    activeLogs.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Fallback to local storage if Firestore is empty
+                if (activeLogs.length === 0) {
+                    try {
+                        activeLogs = JSON.parse(localStorage.getItem('tranquility_logs') || '[]');
+                    } catch (e) {}
+                }
+
+                activeLogs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                updateAdminStats();
+                renderLogsTable(activeLogs);
+            }, (error) => {
+                console.error("Firestore Live Error:", error);
+                // Fallback to LocalStorage on error
+                try {
+                    activeLogs = JSON.parse(localStorage.getItem('tranquility_logs') || '[]');
+                    updateAdminStats();
+                    renderLogsTable(activeLogs);
+                } catch (e) {}
+            });
+        }
+
+        // Stats Updates
+        function updateAdminStats() {
+            const totalVisits = activeLogs.reduce((acc, curr) => acc + (curr.visitCount || 1), 0);
+            
+            const uniqueStudentsSet = new Set(activeLogs.map(l => l.studentName ? l.studentName.trim() : ''));
+            uniqueStudentsSet.delete('');
+            
+            const todayIso = new Date().toISOString().split('T')[0];
+            const todayLogs = activeLogs.filter(l => l.isoDate === todayIso);
+
+            document.getElementById('stat-unique-students').innerText = uniqueStudentsSet.size;
+            document.getElementById('stat-today-visitors').innerText = todayLogs.length;
+            document.getElementById('stat-total-visits').innerText = totalVisits;
+        }
+
+        // Render Table
+        function renderLogsTable(logs) {
+            const tbody = document.getElementById('logs-tbody');
+            if (logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">لا يوجد مشاركات مسجلة حتى الآن</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => `
+                <tr class="hover:bg-pinksoft-50/50 transition">
+                    <td class="p-3 font-bold text-saudi-green">${log.studentName || 'طالبة'}</td>
+                    <td class="p-3 text-gray-600">${log.dateStr || '-'}</td>
+                    <td class="p-3 text-gray-500 text-xs">${log.timeStr || '-'}</td>
+                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-xs">${log.visitCount || 1}</span></td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteLogRecord('${log.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg">
+                            <i class="fa-solid fa-trash ml-1"></i>حذف
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.filterLogTable = function() {
+            const query = document.getElementById('tableSearch').value.toLowerCase();
+            const filtered = activeLogs.filter(l => l.studentName && l.studentName.toLowerCase().includes(query));
+            renderLogsTable(filtered);
+        };
+
+        window.deleteLogRecord = async function(id) {
+            if (!currentUser) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'visitor_logs', id));
+                showToast("تم حذف السجل بنجاح");
+            } catch (err) {
+                console.error("Delete Error:", err);
+                showToast("حدث خطأ أثناء الحذف", true);
+            }
+        };
+
+        // Export Logs to Excel/CSV
+        window.exportToCSV = function() {
+            if (activeLogs.length === 0) {
+                showToast("لا توجد بيانات للتصدير", true);
+                return;
+            }
+
+            let csvContent = "\uFEFFاسم الطالبة,التاريخ واليوم,الوقت,عدد الزيارات\n";
+            activeLogs.forEach(row => {
+                csvContent += `"${row.studentName || ''}","${row.dateStr || ''}","${row.timeStr || ''}","${row.visitCount || 1}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `سجل_طالبات_رسالة_الطمأنينة_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("تم تصدير ملف CSV بنجاح!");
+        };
+
+        // Custom Messages logic
+        async function loadCustomMessages() {
+            if (!currentUser) return;
+            try {
+                const msgCol = collection(db, 'artifacts', appId, 'public', 'data', 'custom_messages');
+                const snapshot = await getDocs(msgCol);
+                const customMsgs = [];
+                snapshot.forEach(doc => customMsgs.push({ id: doc.id, ...doc.data() }));
+
+                if (customMsgs.length > 0) {
+                    currentMessagesList = [...defaultMessages, ...customMsgs];
+                }
+            } catch (e) {
+                console.error("Error loading custom messages:", e);
+            }
+        }
+
+        window.toggleAddMessageForm = function() {
+            const form = document.getElementById('add-msg-form');
+            form.classList.toggle('hidden');
+        };
+
+        window.addNewMessage = async function() {
+            const cat = document.getElementById('new-msg-category').value;
+            const text = document.getElementById('new-msg-text').value.trim();
+
+            if (!text) {
+                showToast("يرجى كتابة نص الرسالة", true);
+                return;
+            }
+
+            const newObj = { category: cat, text: text };
+            currentMessagesList.push(newObj);
+
+            if (currentUser) {
+                try {
+                    const msgRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'custom_messages'));
+                    await setDoc(msgRef, newObj);
+                    showToast("تم حفظ الرسالة الجديدة!");
+                    document.getElementById('new-msg-text').value = '';
+                    toggleAddMessageForm();
+                    renderAdminMessages();
+                } catch (e) {
+                    console.error("Error saving message:", e);
+                }
+            }
+        };
+
+        function renderAdminMessages() {
+            const container = document.getElementById('messages-admin-list');
+            container.innerHTML = currentMessagesList.slice(-10).map((m) => `
+                <div class="p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs flex justify-between items-center">
+                    <div>
+                        <span class="font-bold text-saudi-green ml-2">[${m.category}]</span>
+                        <span class="text-gray-700">${m.text}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize Firebase Authentication
+        initAuth();
+    </script>
+</body>
+</html>
